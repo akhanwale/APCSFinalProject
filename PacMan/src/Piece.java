@@ -143,5 +143,11 @@ public class Piece {
 		this.foodType = foodType;
 		setFoodImage(foodType);
 	}
+	
+	public void collision(PacMan pac){
+//		if(pac.getCenterX() < x || pac.getCenterY() < y || pac.getCenterX() ){
+//			
+//		}
+	}
 
 }
