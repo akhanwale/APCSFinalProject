@@ -36,11 +36,14 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	int pacManY = 404;
 	int pacManYCenter = pacManY + 16;
 	int pacManImg = 0; 
+	
+	PacMan pac;
 	double pacManDir = 0; 
 
 	public PacManDriver(){
 		scan(); // calls scan method to parse input file and initialize map
 
+		pac = new PacMan(pacManX, pacManY, "Character");
 		// JFrame data
 		f.setVisible(true);
 		f.setTitle("Pac-Man");
@@ -59,6 +62,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		
 		for(int i = 0; i < mapArr.length; i++) {
 			for(int j = 0; j < mapArr[0].length; j++) {
+				mapArr[i][j].collision(pac);
 				mapArr[i][j].setX(40*j);
 				mapArr[i][j].setY(40*i + 80);
 				g.drawImage(mapArr[i][j].getImage(), mapArr[i][j].getX() , mapArr[i][j].getY(), this);
@@ -91,11 +95,11 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 			Image heart = Toolkit.getDefaultToolkit().getImage("PacManImageh.png");
 			g.drawImage(heart, 640 + 50*i , 15 , this);
 		}
-		Image pacMan =  Toolkit.getDefaultToolkit().getImage("Character" + Integer.toString(pacManImg) + ".png");
 		
-		g.drawImage(pacMan, pacManX, pacManY, this);
+		g.drawImage(pac.getImage(), pac.getX(), pac.getY(), this);
 
 	}
+	
 	public static void scan() {
 		File file = new File("Map1.txt");
 		Scanner s;
@@ -162,12 +166,9 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		if(shiftDistance == 1) {
 			shiftDown = false;
 		}
-		if(pacManImg == 0) {
-			pacManImg = 1;
-		}else {
-			pacManImg = 0;
-		}
+		pac.setImage(!pac.getOpen());
 	}
+	
 	public void pacUpdate() {
 		repaint();
 	}
@@ -187,17 +188,21 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getKeyCode() == 38) {
-			pacManY-= 10;
+			pac.moveUp();
+//			pacManY-= 10;
 			pacUpdate();
 		}else if(e.getKeyCode() == 39) {
-			pacManX+= 10;
+			pac.moveRight();
+//			pacManX+= 10;
 			pacUpdate();
 		}else if(e.getKeyCode() == 40) {
-			pacManY+= 10;
+			pac.moveDown();
+//			pacManY+= 10;
 			pacUpdate();
 
 		}else if(e.getKeyCode() == 37) {
-			pacManX-=10;
+			pac.moveLeft();
+//			pacManX-=10;
 			pacUpdate();
 		}
 	}
