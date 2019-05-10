@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -22,8 +25,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	JFrame f = new JFrame(); 
 
 	Timer t = null;
-	int screen_height;
-	int screen_width;
+	boolean setupPaint = true;
 
 	static Piece[][] mapArr = null; // stores map data
 
@@ -34,24 +36,38 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	int pacManX = 84;
 	int pacManXCenter = pacManX + 16;
 
-	int pacManY = 140-16;
+	int pacManY = 124;
 	int pacManYCenter = pacManY + 16;
-	int pacManImg = 0; 
+	int pacManImg = 0;
+	
+	int blueX = 484;
+	int blueY = 484;
+
+	int screen_width;
+	int screen_height;
 
 	PacMan pac;
-	double pacManDir = 0; 
-	int score = 0; 
+	Ghost blue;
+	double pacManDir = 0;
+	AffineTransform tx;
+	AffineTransformOp op;
+
+	boolean moveUp, moveDown, moveLeft, moveRight;
+	boolean up, down, left, right;
+
+	int cycles = 0;
 
 	public PacManDriver(){
 		scan(); // calls scan method to parse input file and initialize map
 
 		pac = new PacMan(pacManX, pacManY, "Character");
+		blue = new Ghost(blueX, blueY, "Character");
 		// JFrame data
 		f.setVisible(true);
 		f.setTitle("Pac-Man");
-		screen_height = mapArr[0].length*40 + 100;
+		f.setSize(mapArr.length* 40, mapArr[0].length*40 + 100 ); // dependent on map size
 		screen_width = mapArr.length* 40;
-		f.setSize(screen_width, screen_height ); // dependent on map size
+		screen_height = mapArr[0].length*40 + 100;
 		f.setBackground(Color.BLACK);
 		f.setResizable(false);
 		f.addKeyListener(this);
@@ -59,14 +75,14 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Timer for update
-		t = new Timer(175, this);
+		t = new Timer(40, this);
 		t.start();
 	}
 	public void paint(Graphics g) {
-
+		g.clearRect(0, 0, screen_width, screen_height);
 		for(int i = 0; i < mapArr.length; i++) {
 			for(int j = 0; j < mapArr[0].length; j++) {
-				mapArr[i][j].collision(pac);
+				//mapArr[i][j].collision(pac);
 				mapArr[i][j].setX(40*j);
 				mapArr[i][j].setY(40*i + 80);
 				g.drawImage(mapArr[i][j].getImage(), mapArr[i][j].getX() , mapArr[i][j].getY(), this);
@@ -78,21 +94,23 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		}
 
 		// Rectangle at top for score, name etc.
+		if(setupPaint) {
+			g.fillRect(0, 0, 40*mapArr.length, 80);
 
-		g.fillRect(0, 0, 40*mapArr.length, 80);
+			// User Information Display
 
-		// User Information Display
-
-		Font f1 = new Font("Courier", 0, 30);
-		g.setColor(Color.WHITE);
-		g.setFont(f1);
-		g.drawString("Name: " + "Pickles", 50, 50);
-		g.drawString("Score: " + Integer.toString(score), 400, 50);
-
+			Font f1 = new Font("Courier", 0, 30);
+			g.setColor(Color.WHITE);
+			g.setFont(f1);
+			g.drawString("Name: " + "Pickles", 50, 50);
+			g.drawString("Score: 100", 400, 50);
+		}
 
 		// Map is a 2D array of images. Draws the correct image based on input file
 
-
+		blue.setKey("(Right)");
+		blue.setImage();
+		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
 
 		//Lives
 		for(int i = 0; i < 3; i++) {
@@ -100,11 +118,20 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 			g.drawImage(heart, 640 + 50*i , 15 , this);
 		}
 
-		Image pacMan =  Toolkit.getDefaultToolkit().getImage("Character" + Integer.toString(pacManImg) + ".png");
+		if(left){
+			pac.setKey("(Left)");
+		}
+		else if(right){
+			pac.setKey("(Right)");
+		}
+		else if(down){
+			pac.setKey("(Down)");
+		}
+		else if(up){
+			pac.setKey("(Up)");
+		}
 
 		g.drawImage(pac.getImage(), pac.getX(), pac.getY(), this);
-		pacManXCenter = pacManX + 16;
-		pacManYCenter = pacManY + 16;
 
 	}
 
@@ -162,26 +189,51 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	}
 
 	public void update() {
-		if(shiftDown) {
-			shiftDistance++;
-		}else {
-			shiftDistance--;
-		}
+		if(cycles % 4 == 0){
+			if(shiftDown) {
+				shiftDistance++;
+			}else {
+				shiftDistance--;
+			}
 
-		if(shiftDistance == -1) {
-			shiftDown = true;
+			if(shiftDistance == -1) {
+				shiftDown = true;
+			}
+			if(shiftDistance == 1) {
+				shiftDown = false;
+			}
+			pac.setImage(!pac.getOpen());
 		}
-		if(shiftDistance == 1) {
-			shiftDown = false;
-		}
-		pac.setImage(!pac.getOpen());
 	}
 
 	public void pacUpdate() {
-		if(wheresPacMan().hasFood()) {
-			wheresPacMan().setFood(false);
-			score+=10;
+		int[] pos = wheresPacMan();
+		
+		if(pac.getX() + 20 >= screen_width){
+			pac.setX(5);	
 		}
+
+		if(pac.getX() <= -10){
+			pac.setX(screen_width - 39);
+		}
+
+		if(left) pac.moveLeft();
+		else if(right) pac.moveRight();
+		else if(up) pac.moveUp();
+		else if(down) pac.moveDown();
+
+		if(pos[1] <= 0 || pos[1] >= mapArr.length - 1){
+			mapArr[pos[0]][pos[1]].collision(pac, null, null, mapArr[pos[0]-1][pos[1]], mapArr[pos[0]+1][pos[1]]);
+			mapArr[9][mapArr[0].length-1].setFood(false);
+			mapArr[9][0].setFood(false);
+		}
+		else{
+			if(mapArr[pos[0]][pos[1]].hasFood()){
+				mapArr[pos[0]][pos[1]].setFood(false);
+			}
+			mapArr[pos[0]][pos[1]].collision(pac, mapArr[pos[0]][pos[1]-1], mapArr[pos[0]][pos[1]+1], mapArr[pos[0]-1][pos[1]], mapArr[pos[0]+1][pos[1]]);
+		}
+		
 		repaint();
 	}
 	public static void main(String[] args) {
@@ -198,30 +250,46 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
+
 		if(e.getKeyCode() == 38) {
-
-
-			pac.moveUp();
-			//			pacManY-= 10;
+			//			pac.moveUp();
+			up = true;
+			down = false;
+			left = false;
+			right = false;
+			pacUpdate();
 
 		}else if(e.getKeyCode() == 39) {
 
-			pac.moveRight();
-			//			pacManX+= 10;
+			//			else{
+			//				pac.moveRight();
+			//			}
+			up = false;
+			down = false;
+			left = false;
+			right = true;
+			pacUpdate();
 
 		}else if(e.getKeyCode() == 40) {
-
-
-			pac.moveDown();
-			//			pacManY+= 10;
+			//			pac.moveDown();
+			up = false;
+			down = true;
+			left = false;
+			right = false;
+			pacUpdate();
 
 		}else if(e.getKeyCode() == 37) {
 
-			pac.moveLeft();
-			//			pacManX-=10;
-
+			//			else{
+			//				pac.moveLeft();
+			//			}		
+			up = false;
+			down = false;
+			left = true;
+			right = false;
+			pacUpdate();
 		}
+
 	}
 
 	@Override
@@ -236,14 +304,15 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 		repaint();
 		update();
-
-
+		pacUpdate();
+		cycles ++;
+		
+		
 	}
-	public Piece wheresPacMan() {
-		int row = ((pacManYCenter-80)/40);
-		int col = (pacManXCenter/40);
-		Piece p = mapArr[row][col];
-		System.out.println(Integer.toString(row) +  " " + Integer.toString(col));
-		return p; 
+	public int[] wheresPacMan() {
+		int row = ((pac.getCenterY()-80)/40);
+		int col = (pac.getCenterX()/40);
+		return new int[]{row, col}; 
+
 	}
 }

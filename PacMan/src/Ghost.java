@@ -2,13 +2,12 @@ import java.awt.Image;
 import java.awt.Toolkit;
 
 
-public class PacMan {
+public class Ghost {
 
 	private int x, y;
 	private int width = 33, height = 33;
 	private int orientation;
 	private String str;
-	private boolean open;
 	private String imageKey = "(Right)";
 	
 	private Image img;
@@ -55,30 +54,22 @@ public class PacMan {
 		this.orientation = orientation;
 	}
 
-	public void setOpen(boolean open) {
-		this.open = open;
-	}
 
-	public PacMan(int _x, int _y, String _str){
+	public Ghost(int _x, int _y, String _str){
 		x = _x;
 		y = _y;
 		str = _str;
 	}
 	
-	public void setImage(boolean _open) {
-		open = _open;
-		if(open) img = Toolkit.getDefaultToolkit().getImage(str + imageKey + "0.png");
-		else img = Toolkit.getDefaultToolkit().getImage(str + "1.png");
+	public void setImage() {
+//		img = Toolkit.getDefaultToolkit().getImage(str + imageKey + "0.png");
+		img = Toolkit.getDefaultToolkit().getImage(str + "2.png");
 	}
 	
 	public void setKey(String key){
 		imageKey = key;
 	}
 
-	public boolean getOpen(){
-		return open;
-	}
-	
 	public Image getImage() {
 		return img;
 	}

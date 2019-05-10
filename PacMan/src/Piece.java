@@ -5,6 +5,7 @@ public class Piece {
 
 	private boolean topCol, botCol, leftCol, rightCol; // true if blocked
 	private int x, y;
+	private int width = 40, height = 40;
 	private String type;
 	private Image img;
 	private Image foodImg;
@@ -144,10 +145,19 @@ public class Piece {
 		setFoodImage(foodType);
 	}
 	
-	public void collision(PacMan pac){
-//		if(pac.getCenterX() < x || pac.getCenterY() < y || pac.getCenterX() ){
-//			
-//		}
+	public void collision(PacMan pac, Piece left, Piece right, Piece up, Piece down){
+		if(left != null && (left.isRightCol() && pac.getX() < x)){
+			pac.setX(x);
+		}
+		if(right != null && (right.isLeftCol() && (pac.getX() + pac.getWidth()) > x + width)){
+			pac.setX(x + width - pac.getWidth());
+		}
+		if(up != null && (up.isBotCol() && pac.getY() < y)){
+			pac.setY(y);
+		}
+		if(down != null && (down.isTopCol() && (pac.getY() + pac.getHeight()) > y + height)){
+			pac.setY(y + height - pac.getHeight());
+		}
 	}
 
 }
