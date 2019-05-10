@@ -25,7 +25,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	JFrame f = new JFrame(); 
 
 	Timer t = null;
-	boolean setupPaint = true;
+	
 
 	static Piece[][] mapArr = null; // stores map data
 
@@ -41,13 +41,21 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	int pacManImg = 0;
 	
 	int blueX = 484;
-	int blueY = 484;
-
+	int blueY = 404;
+	int pinkX = 484;
+	int pinkY = 484;
+	int redX = 324;
+	int redY = 404;
+	int orangeX = 324;
+	int orangeY = 484;
 	int screen_width;
 	int screen_height;
-
+	int score = 0;
 	PacMan pac;
-	Ghost blue;
+	Ghost Blue;
+	Ghost Pink;
+	Ghost Red;
+	Ghost Orange;
 	double pacManDir = 0;
 	AffineTransform tx;
 	AffineTransformOp op;
@@ -61,7 +69,10 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		scan(); // calls scan method to parse input file and initialize map
 
 		pac = new PacMan(pacManX, pacManY, "Character");
-		blue = new Ghost(blueX, blueY, "Character");
+		Blue = new Ghost(blueX, blueY, "Blue");
+		Pink = new Ghost(pinkX, pinkY, "Pink");
+		Red = new Ghost(redX, redY, "Red");
+		Orange = new Ghost(orangeX, orangeY, "Orange");
 		// JFrame data
 		f.setVisible(true);
 		f.setTitle("Pac-Man");
@@ -94,7 +105,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		}
 
 		// Rectangle at top for score, name etc.
-		if(setupPaint) {
+		
 			g.fillRect(0, 0, 40*mapArr.length, 80);
 
 			// User Information Display
@@ -103,24 +114,24 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 			g.setColor(Color.WHITE);
 			g.setFont(f1);
 			g.drawString("Name: " + "Pickles", 50, 50);
-			g.drawString("Score: 100", 400, 50);
-		}
+			g.drawString("Score: " + Integer.toString(score), 400, 50);
+		
 
 		// Map is a 2D array of images. Draws the correct image based on input file
 
-		blue.setKey("(Right)");
-		blue.setImage();
-		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
+		Blue.setKey("Up");
+		Blue.setImage();
+		g.drawImage(Blue.getImage(), Blue.getX(), Blue.getY(), this);
 		
-		blue.setKey("(Right)");
-		blue.setImage();
-		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
-		blue.setKey("(Right)");
-		blue.setImage();
-		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
-		blue.setKey("(Right)");
-		blue.setImage();
-		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
+		Pink.setKey("Down");
+		Pink.setImage();
+		g.drawImage(Pink.getImage(), Pink.getX(), Pink.getY(), this);
+		Red.setKey("Left");
+		Red.setImage();
+		g.drawImage(Red.getImage(), Red.getX(), Red.getY(), this);
+		Orange.setKey("Right");
+		Orange.setImage();
+		g.drawImage(Orange.getImage(), Orange.getX(), Orange.getY(), this);
 
 		//Lives
 		for(int i = 0; i < 3; i++) {
@@ -199,6 +210,11 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 	}
 
 	public void update() {
+		int[] pos = wheresPacMan();
+		Blue.AI(pos);
+		Pink.AI(pos);
+		Red.AI(pos);
+		Orange.AI(pos);
 		if(cycles % 4 == 0){
 			if(shiftDown) {
 				shiftDistance++;
@@ -234,12 +250,19 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 		if(pos[1] <= 0 || pos[1] >= mapArr.length - 1){
 			mapArr[pos[0]][pos[1]].collision(pac, null, null, mapArr[pos[0]-1][pos[1]], mapArr[pos[0]+1][pos[1]]);
-			mapArr[9][mapArr[0].length-1].setFood(false);
-			mapArr[9][0].setFood(false);
+			if(mapArr[9][mapArr[0].length-1].hasFood()) {
+				mapArr[9][mapArr[0].length-1].setFood(false);
+				score += 5;
+			}
+			if(mapArr[9][0].hasFood()) {
+				mapArr[9][0].setFood(false);
+				score+=5;
+			}
 		}
 		else{
 			if(mapArr[pos[0]][pos[1]].hasFood()){
 				mapArr[pos[0]][pos[1]].setFood(false);
+				score += 5;
 			}
 			mapArr[pos[0]][pos[1]].collision(pac, mapArr[pos[0]][pos[1]-1], mapArr[pos[0]][pos[1]+1], mapArr[pos[0]-1][pos[1]], mapArr[pos[0]+1][pos[1]]);
 		}

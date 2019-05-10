@@ -8,12 +8,36 @@ public class Ghost {
 	private int width = 33, height = 33;
 	private int orientation;
 	private String color;
-	private String imageKey = "(Right)";
+	private String imageKey = "Right";
 	
 	private Image img;
 	//-1 == left, -2 == down, 1 == right, 2 == up
 	
-	
+	public Ghost(int _x, int _y, String _str){
+		x = _x;
+		y = _y;
+		color = _str;
+	}
+	public void AI(int[] pLoc) {
+		//move  counterclockwise for preference
+		if(color.equals("Blue")) {
+			
+			//up, left, down, right
+			
+			
+			
+		}else if(color.equals("Red")) {
+			//left, down, right, up
+			
+			
+		}else if(color.equals("Pink")) {
+			
+			//down, right, up , left
+			
+		}else if(color.equals("Orange")) {
+			// right, up , left, down
+		}
+	}
 	public int getX() {
 		return x;
 	}
@@ -55,11 +79,7 @@ public class Ghost {
 	}
 
 
-	public Ghost(int _x, int _y, String _str){
-		x = _x;
-		y = _y;
-		color = _str;
-	}
+	
 	
 	public void setImage() {
 //		img = Toolkit.getDefaultToolkit().getImage(str + imageKey + "0.png");
