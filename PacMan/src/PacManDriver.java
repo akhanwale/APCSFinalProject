@@ -111,6 +111,16 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		blue.setKey("(Right)");
 		blue.setImage();
 		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
+		
+		blue.setKey("(Right)");
+		blue.setImage();
+		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
+		blue.setKey("(Right)");
+		blue.setImage();
+		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
+		blue.setKey("(Right)");
+		blue.setImage();
+		g.drawImage(blue.getImage(), blue.getX(), blue.getY(), this);
 
 		//Lives
 		for(int i = 0; i < 3; i++) {

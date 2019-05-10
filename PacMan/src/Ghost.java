@@ -7,7 +7,7 @@ public class Ghost {
 	private int x, y;
 	private int width = 33, height = 33;
 	private int orientation;
-	private String str;
+	private String color;
 	private String imageKey = "(Right)";
 	
 	private Image img;
@@ -58,12 +58,12 @@ public class Ghost {
 	public Ghost(int _x, int _y, String _str){
 		x = _x;
 		y = _y;
-		str = _str;
+		color = _str;
 	}
 	
 	public void setImage() {
 //		img = Toolkit.getDefaultToolkit().getImage(str + imageKey + "0.png");
-		img = Toolkit.getDefaultToolkit().getImage(str + "2.png");
+		img = Toolkit.getDefaultToolkit().getImage("Ghost" + color + imageKey + ".png");
 	}
 	
 	public void setKey(String key){
