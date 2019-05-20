@@ -18,25 +18,11 @@ public class Ghost {
 		y = _y;
 		color = _str;
 	}
-	public void AI(int[] pLoc) {
-		//move  counterclockwise for preference
-		if(color.equals("Blue")) {
-			
-			//up, left, down, right
-			
-			
-			
-		}else if(color.equals("Red")) {
-			//left, down, right, up
-			
-			
-		}else if(color.equals("Pink")) {
-			
-			//down, right, up , left
-			
-		}else if(color.equals("Orange")) {
-			// right, up , left, down
-		}
+	
+	
+	public void move(int[] pLoc) {
+		
+		
 	}
 	public int getX() {
 		return x;
@@ -117,4 +103,6 @@ public class Ghost {
 	public int getCenterY(){
 		return y + 16;
 	}
+	
+	
 }

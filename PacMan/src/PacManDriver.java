@@ -26,7 +26,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 	Timer t = null;
 	
-
+	
 	static Piece[][] mapArr = null; // stores map data
 
 	boolean shiftDown = true; // determines direction of particle movement
@@ -67,7 +67,6 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 	public PacManDriver(){
 		scan(); // calls scan method to parse input file and initialize map
-
 		pac = new PacMan(pacManX, pacManY, "Character");
 		Blue = new Ghost(blueX, blueY, "Blue");
 		Pink = new Ghost(pinkX, pinkY, "Pink");
@@ -171,8 +170,9 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 					if(s.hasNextInt()) {
 						Piece p = new Piece(0, 0, Integer.toString(s.nextInt()));
 						mapArr[iterator][i] = p;
-
-
+						if(iterator != 0) {
+							
+						}
 					}else {
 						Piece p = new Piece(0, 0, s.next());
 						mapArr[iterator][i] = p;
@@ -211,10 +211,7 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 
 	public void update() {
 		int[] pos = wheresPacMan();
-		Blue.AI(pos);
-		Pink.AI(pos);
-		Red.AI(pos);
-		Orange.AI(pos);
+		
 		if(cycles % 4 == 0){
 			if(shiftDown) {
 				shiftDistance++;
@@ -343,6 +340,12 @@ public class PacManDriver extends JPanel implements ActionListener, KeyListener{
 		
 	}
 	public int[] wheresPacMan() {
+		int row = ((pac.getCenterY()-80)/40);
+		int col = (pac.getCenterX()/40);
+		return new int[]{row, col}; 
+
+	}
+	public int[] wheresGhost(Ghost g) {
 		int row = ((pac.getCenterY()-80)/40);
 		int col = (pac.getCenterX()/40);
 		return new int[]{row, col}; 
